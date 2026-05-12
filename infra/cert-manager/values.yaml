@@ -1,0 +1,36 @@
+# cert-manager — TLS automat via ACME (Let's Encrypt)
+#
+# Provider HTTP-01 challenge: necesită port 80 deschis pe router → server
+# Pe server2 (ctin): icode.mywire.org via dynu DDNS, port 80 deja forward-uit
+
+# Instalează automat CRDs (Certificate, Issuer, ClusterIssuer, etc.)
+crds:
+  enabled: true
+
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+webhook:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+cainjector:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi

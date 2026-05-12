@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  sources:
+    # Sursa 1: Chart oficial cert-manager (Jetstack)
+    - repoURL: https://charts.jetstack.io
+      chart: cert-manager
+      targetRevision: v1.16.1
+      helm:
+        releaseName: cert-manager
+        valueFiles:
+          - $values/infra/cert-manager/values.yaml
+
+    # Sursa 2: ClusterIssuer-uri Let's Encrypt din repo
+    - repoURL: https://github.com/nimigeanconstantinion/microserv-sync-gitops.git
+      targetRevision: master
+      path: infra/cert-manager/issuers
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

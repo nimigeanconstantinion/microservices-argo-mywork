@@ -1,0 +1,44 @@
+# Test Ingress pentru a valida flow-ul cert-manager + Let's Encrypt
+# DUPĂ ce confirmi că funcționează, ștergi acest fișier (sau îl lași — e inofensiv)
+#
+# Verificare end-to-end:
+#   1. cert-manager primește cererea
+#   2. Creează un Certificate + Order + Challenge
+#   3. nginx-ingress publică /.well-known/acme-challenge/<token>
+#   4. Let's Encrypt validează
+#   5. cert este stocat în secret test-tls-cert
+#   6. https://test.icode.mywire.org returnează cert valid
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cert-test-svc
+  namespace: default
+spec:
+  type: ExternalName
+  externalName: kubernetes.default.svc.cluster.local  # dummy target — nu contează că nu răspunde
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cert-test
+  namespace: default
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - test.icode.mywire.org
+      secretName: test-tls-cert
+  rules:
+    - host: test.icode.mywire.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cert-test-svc
+                port:
+                  number: 80
